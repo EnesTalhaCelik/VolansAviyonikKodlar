@@ -8,5 +8,5 @@
   ( jiroskop ise ivme ve eğim ; GPS ise enlem , boylam , yükseklik hız vs gibi) 
 - [x] ardından Serial.print, Serial.write fonksiyonu ile bu verileri "konsola" yazdırın. 🎉🎉
 
-### Yazdığınız koda göre ben de eklediğiniz verileri paket haline getiren fonksiyonu ekleyeceğim.
+### Yazdığınız koda göre ben de eklediğiniz verileri paket haline getip loraya ileten fonksiyonu ekleyeceğim.
  
