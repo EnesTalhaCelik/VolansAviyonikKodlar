@@ -1,11 +1,13 @@
 // aviyonik ve haberleşme testleri bu kod ile yapılacak
 
-
-
-
+#include <Adafruit_Sensor.h>
+#include <Adafruit_BME280.h>
 #include <MPU6050.h>
 #include <Wire.h>
+#define SEALEVELPRESSURE_HPA (1013.25)
+Adafruit_BME280 bme;
 MPU6050 mpu;
+unsigned long delayTime;
 
 
  typedef union {
@@ -15,13 +17,21 @@ MPU6050 mpu;
 Float_Int_Donusturucu test;
 
 char paketSayaci = 0; 
-int x,y,z; //geçici olarak yaptım değiştireceğim
-void setup() {
-  Serial.begin(9600);
+float JiroskopX,JiroskopY,JiroskopZ; //geçici olarak yaptım değiştireceğim
+float basinc;
 
+void setup() {
+  
+   bool status;
+  delayTime = 1000;
+  Serial.begin(9600);
   Wire.begin();
   mpu.initialize();
-  
+  status = bme.begin(0x76);  //nem sesnsörünün adresibe göre bu kısım değişebilir.
+  if (!status) {
+    Serial.println("Nem sensörüne bağlanılamadı");
+    while (1);
+  }
   Serial.println("MPU6050'ye baglaniliyor");
   Serial.print(mpu.testConnection() ? "MPU6050 ile baglanti kuruldu" : "MPU6050 ile baglanti kurulamadi");
 }
@@ -30,17 +40,19 @@ void loop() {
   // Read accelerometer and gyroscope data
   
 
-  x = mpu.getRotationX();
-  y = mpu.getRotationY();
-  z = mpu.getRotationZ();
 
+  JiroskopX = mpu.getRotationX();
+  JiroskopY = mpu.getRotationY();
+  JiroskopZ = mpu.getRotationZ();
+  basinc = bme.readPressure() / 100.0F;
   // Print data
   
   Serial.print("Gyroscope: ");
   Serial.print("X = "); Serial.print(x);
   Serial.print(" Y = "); Serial.print(y);
   Serial.print(" Z = "); Serial.println(z);
-  
+  Serial.print(" Basınç = "); Serial.println(basinc);
+  LoraPaketGonder(float aciX,float aciY,float aciZ,float basinc,char tetiklenmeBasinc,char tetiklenmeAci,char paketSayac)
   delay(1000);
 }
 //seri haberleşme ile veri göndermek için
@@ -84,7 +96,7 @@ void PaketGonder(float aciX,float aciY,float aciZ,float basinc,char tetiklenmeBa
   Serial.print(0x76);//Paket Sayacı
   //Serial.print(false); //ayırıcı
   //Serial.println(0x7D);//Paket bitiş kodu
-  
+  paketSayac++; //paket sayacının 255 olma durumunu hesaba kat o kodu ekle
 
 }
 //lora ile veri göndermek için
