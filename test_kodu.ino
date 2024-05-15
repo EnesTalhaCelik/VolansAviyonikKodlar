@@ -8,13 +8,16 @@
 Adafruit_BME280 bme;
 MPU6050 mpu;
 unsigned long delayTime;
-
+#define BASINC_ESIK 1000
+#define LORA_TX 5 //loraTX i nin bağlı olduğu pin yani Rx
+#define LORA_RX 4 //loraRX i nin bağlı olduğu pin yani Tx
+SoftwareSerial loraSerial(LORA_TX,LORA_RX)
 
  typedef union {
     float           sayi;
     unsigned char   array[4];
 }Float_Int_Donusturucu;
-Float_Int_Donusturucu test;
+Float_Int_Donusturucu veriConverter;
 
 char paketSayaci = 0; 
 float JiroskopX,JiroskopY,JiroskopZ; //geçici olarak yaptım değiştireceğim
@@ -37,7 +40,7 @@ void setup() {
 }
 
 void loop() {
-  // Read accelerometer and gyroscope data
+  
   
 
 
@@ -52,7 +55,11 @@ void loop() {
   Serial.print(" Y = "); Serial.print(y);
   Serial.print(" Z = "); Serial.println(z);
   Serial.print(" Basınç = "); Serial.println(basinc);
-  LoraPaketGonder(float aciX,float aciY,float aciZ,float basinc,char tetiklenmeBasinc,char tetiklenmeAci,char paketSayac)
+  //BASINÇ VE AÇI TETİKLENME KODU 
+  //GEREKLİ DEĞERLER SAĞLANDIĞINDA LED YAK
+
+
+  //LoraPaketGonder(JiroskopX,JiroskopY,JiroskopZ,basinc,BasincTetiklenme(basinc,BASINC_ESIK),char tetiklenmeAci,paketSayaci);
   delay(1000);
 }
 //seri haberleşme ile veri göndermek için
@@ -63,29 +70,29 @@ void PaketGonder(float aciX,float aciY,float aciZ,float basinc,char tetiklenmeBa
   //Serial.print(0x2F); //ayırıcı
   //Serial.print(0x75);//identifier test paketine özel tanımlayıcı kod 0x75 !!
   //Serial.print(0x2F); //ayırıcı
-  test.sayi=basinc;
-  Serial.print(test.array[0]);
-  Serial.print(test.array[1]);
-  Serial.print(test.array[2]);
-  Serial.print(test.array[3]);
+  veriConverter.sayi=basinc;
+  Serial.print(veriConverter.array[0]);
+  Serial.print(veriConverter.array[1]);
+  Serial.print(veriConverter.array[2]);
+  Serial.print(veriConverter.array[3]);
   Serial.print(0x2F); //ayırıcı
-  test.sayi=aciX;
-  Serial.print(test.array[0]);
-  Serial.print(test.array[1]);
-  Serial.print(test.array[2]);
-  Serial.print(test.array[3]);
+  veriConverter.sayi=aciX;
+  Serial.print(veriConverter.array[0]);
+  Serial.print(veriConverter.array[1]);
+  Serial.print(veriConverter.array[2]);
+  Serial.print(veriConverter.array[3]);
   Serial.print(0x2F); //ayırıcı
-  test.sayi=aciY;
-  Serial.print(test.array[0]);
-  Serial.print(test.array[1]);
-  Serial.print(test.array[2]);
-  Serial.print(test.array[3]);
+  veriConverter.sayi=aciY;
+  Serial.print(veriConverter.array[0]);
+  Serial.print(veriConverter.array[1]);
+  Serial.print(veriConverter.array[2]);
+  Serial.print(veriConverter.array[3]);
   Serial.print(0x2F); //ayırıcı
-  test.sayi=aciZ;
-  Serial.print(test.array[0]);
-  Serial.print(test.array[1]);
-  Serial.print(test.array[2]);
-  Serial.print(test.array[3]);
+  veriConverter.sayi=aciZ;
+  Serial.print(veriConverter.array[0]);
+  Serial.print(veriConverter.array[1]);
+  Serial.print(veriConverter.array[2]);
+  Serial.print(veriConverter.array[3]);
   Serial.print(0x2F); //ayırıcı
   Serial.print(0x76);//Basınç ile ayrılma tetiklendi mi
   Serial.print(0x2F); //ayırıcı
@@ -93,57 +100,86 @@ void PaketGonder(float aciX,float aciY,float aciZ,float basinc,char tetiklenmeBa
   Serial.print(0x2F); //ayırıcı
   Serial.print(0x76);//Doğrulama Kodu
   Serial.print(0x2F); //ayırıcı
-  Serial.print(0x76);//Paket Sayacı
+  Serial.print(paketSayac);//Paket Sayacı
   //Serial.print(false); //ayırıcı
   //Serial.println(0x7D);//Paket bitiş kodu
-  paketSayac++; //paket sayacının 255 olma durumunu hesaba kat o kodu ekle
+
+ if(paketSayac != 255){
+    paketSayac++; //paket sayacının 255 olma durumunu hesaba kat o kodu ekle
+ }
+ else{
+  paketSayac = 0;
+ }
 
 }
 //lora ile veri göndermek için
 void LoraPaketGonder(float aciX,float aciY,float aciZ,float basinc,char tetiklenmeBasinc,char tetiklenmeAci,char paketSayac){
   int checksumDegeri;
-  
-  Serial.print(0x00);
-  Serial.print(0x3F);//adresleri dinamik yap
-  Serial.print(0x17);
-
+  //pinleri lora serial olarak değiştir.
+  loraSerial.print(0x00);
+  loraSerial.print(0x3F);//adresleri dinamik yap
+  loraSerial.print(0x17);
   //Serial.print(0x7B);// başlangıç
   //Serial.print(0x2F); //ayırıcı
   //Serial.print(0x75);//identifier test paketine özel tanımlayıcı kod 0x75 !!
   //Serial.print(0x2F); //ayırıcı
-  test.sayi=basinc;
-  Serial.print(test.array[0]);
-  Serial.print(test.array[1]);
-  Serial.print(test.array[2]);
-  Serial.print(test.array[3]);
-  Serial.print(0x2F); //ayırıcı
-  test.sayi=aciX;
-  Serial.print(test.array[0]);
-  Serial.print(test.array[1]);
-  Serial.print(test.array[2]);
-  Serial.print(test.array[3]);
-  Serial.print(0x2F); //ayırıcı
-  test.sayi=aciY;
-  Serial.print(test.array[0]);
-  Serial.print(test.array[1]);
-  Serial.print(test.array[2]);
-  Serial.print(test.array[3]);
-  Serial.print(0x2F); //ayırıcı
-  test.sayi=aciZ;
-  Serial.print(test.array[0]);
-  Serial.print(test.array[1]);
-  Serial.print(test.array[2]);
-  Serial.print(test.array[3]);
-  Serial.print(0x2F); //ayırıcı
-  Serial.print(0x76);//Basınç ile ayrılma tetiklendi mi
-  Serial.print(0x2F); //ayırıcı
-  Serial.print(0x76);//Açı ile ayrılma tetiklendi mi
-  Serial.print(0x2F); //ayırıcı
-  Serial.print(0x76);//Doğrulama Kodu
-  Serial.print(0x2F); //ayırıcı
-  Serial.print(0x76);//Paket Sayacı
- //Serial.print(false); //ayırıcı
- // Serial.println(0x7D);//Paket bitiş kodu
-  
-
+  veriConverter.sayi=basinc;
+  loraSerial.print(veriConverter.array[0]);
+  loraSerial.print(veriConverter.array[1]);
+  loraSerial.print(veriConverter.array[2]);
+  loraSerial.print(veriConverter.array[3]);
+  loraSerial.print(0x2F); //ayırıcı
+  veriConverter.sayi=aciX;
+  loraSerial.print(veriConverter.array[0]);
+  loraSerial.print(veriConverter.array[1]);
+  loraSerial.print(veriConverter.array[2]);
+  loraSerial.print(veriConverter.array[3]);
+  loraSerial.print(0x2F); //ayırıcı
+  veriConverter.sayi=aciY;
+  loraSerial.print(veriConverter.array[0]);
+  loraSerial.print(veriConverter.array[1]);
+  loraSerial.print(veriConverter.array[2]);
+  loraSerial.print(veriConverter.array[3]);
+  loraSerial.print(0x2F); //ayırıcı
+  veriConverter.sayi=aciZ;
+  loraSerial.print(veriConverter.array[0]);
+  loraSerial.print(veriConverter.array[1]);
+  loraSerial.print(veriConverter.array[2]);
+  loraSerial.print(veriConverter.array[3]);
+  loraSerial.print(0x2F); //ayırıcı
+  loraSerial.print(0x76);//Basınç ile ayrılma tetiklendi mi
+  loraSerial.print(0x2F); //ayırıcı
+  loraSerial.print(0x76);//Açı ile ayrılma tetiklendi mi
+  loraSerial.print(0x2F); //ayırıcı
+  loraSerial.print(0x76);//Doğrulama Kodu
+  loraSerial.print(0x2F); //ayırıcı
+  loraSerial.print(paketSayac);//Paket Sayacı
+  //Serial.print(false); //ayırıcı
+  // Serial.println(0x7D);//Paket bitiş kodu
+  if(paketSayac != 255){
+    paketSayac++; //paket sayacının 255 olma durumunu hesaba kat o kodu ekle
+ }
+ else{
+  paketSayac = 0;
+ }
 }
+
+char BasincTetiklenme(float basincDeger,float basincEsik)
+{
+   if(basincDeger >= basincEsik){
+   
+   return 1;
+   }
+  else{
+   return 0;
+  }
+
+//açı ile tetiklenme fonksiyonu
+ 
+
+
+
+
+ 
+}
+
