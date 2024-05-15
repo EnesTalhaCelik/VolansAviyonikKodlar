@@ -46,11 +46,11 @@ void loop() {
 //seri haberleşme ile veri göndermek için
 void PaketGonder(float aciX,float aciY,float aciZ,float basinc,char tetiklenmeBasinc,char tetiklenmeAci,char paketSayac){
   int checksumDegeri;
-  Serial.print(0x7B);// başlangıç
+  //Serial.print(0x7B);// başlangıç
   
-  Serial.print(0x2F); //ayırıcı
-  Serial.print(0x75);//identifier test paketine özel tanımlayıcı kod 0x75 !!
-  Serial.print(0x2F); //ayırıcı
+  //Serial.print(0x2F); //ayırıcı
+  //Serial.print(0x75);//identifier test paketine özel tanımlayıcı kod 0x75 !!
+  //Serial.print(0x2F); //ayırıcı
   test.sayi=basinc;
   Serial.print(test.array[0]);
   Serial.print(test.array[1]);
@@ -82,8 +82,8 @@ void PaketGonder(float aciX,float aciY,float aciZ,float basinc,char tetiklenmeBa
   Serial.print(0x76);//Doğrulama Kodu
   Serial.print(0x2F); //ayırıcı
   Serial.print(0x76);//Paket Sayacı
-  Serial.print(false); //ayırıcı
-  Serial.println(0x7D);//Paket bitiş kodu
+  //Serial.print(false); //ayırıcı
+  //Serial.println(0x7D);//Paket bitiş kodu
   
 
 }
@@ -95,10 +95,10 @@ void LoraPaketGonder(float aciX,float aciY,float aciZ,float basinc,char tetiklen
   Serial.print(0x3F);//adresleri dinamik yap
   Serial.print(0x17);
 
-  Serial.print(0x7B);// başlangıç
-  Serial.print(0x2F); //ayırıcı
-  Serial.print(0x75);//identifier test paketine özel tanımlayıcı kod 0x75 !!
-  Serial.print(0x2F); //ayırıcı
+  //Serial.print(0x7B);// başlangıç
+  //Serial.print(0x2F); //ayırıcı
+  //Serial.print(0x75);//identifier test paketine özel tanımlayıcı kod 0x75 !!
+  //Serial.print(0x2F); //ayırıcı
   test.sayi=basinc;
   Serial.print(test.array[0]);
   Serial.print(test.array[1]);
@@ -130,8 +130,8 @@ void LoraPaketGonder(float aciX,float aciY,float aciZ,float basinc,char tetiklen
   Serial.print(0x76);//Doğrulama Kodu
   Serial.print(0x2F); //ayırıcı
   Serial.print(0x76);//Paket Sayacı
-  Serial.print(false); //ayırıcı
-  Serial.println(0x7D);//Paket bitiş kodu
+ //Serial.print(false); //ayırıcı
+ // Serial.println(0x7D);//Paket bitiş kodu
   
 
 }
