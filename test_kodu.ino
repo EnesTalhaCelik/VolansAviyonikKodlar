@@ -4,7 +4,6 @@
 #include <Adafruit_Sensor.h>
 #include <Adafruit_BME280.h>
 #include <MPU6050.h>
-#include 
 #include <Wire.h>
 #define SEALEVELPRESSURE_HPA 1013.25
 #define BASINC_ESIK 1000
