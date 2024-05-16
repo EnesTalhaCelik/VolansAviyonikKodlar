@@ -1,17 +1,21 @@
 // aviyonik ve haberleşme testleri bu kod ile yapılacak
-
+#include <SoftwareSerial.h>
+#include "Arduino.h"
 #include <Adafruit_Sensor.h>
 #include <Adafruit_BME280.h>
 #include <MPU6050.h>
+#include 
 #include <Wire.h>
-#define SEALEVELPRESSURE_HPA (1013.25)
-Adafruit_BME280 bme;
-MPU6050 mpu;
-unsigned long delayTime;
+#define SEALEVELPRESSURE_HPA 1013.25
 #define BASINC_ESIK 1000
+Adafruit_BME280 bme;
 #define LORA_TX 5 //loraTX i nin bağlı olduğu pin yani Rx
 #define LORA_RX 4 //loraRX i nin bağlı olduğu pin yani Tx
-SoftwareSerial loraSerial(LORA_TX,LORA_RX)
+MPU6050 mpu;
+unsigned long delayTime;
+
+
+SoftwareSerial loraSerial(LORA_TX,LORA_RX);
 
  typedef union {
     float           sayi;
@@ -25,11 +29,12 @@ float basinc;
 
 void setup() {
   
-   bool status;
+  bool status;
   delayTime = 1000;
   Serial.begin(9600);
   Wire.begin();
   mpu.initialize();
+  loraSerial.begin();
   status = bme.begin(0x76);  //nem sesnsörünün adresibe göre bu kısım değişebilir.
   if (!status) {
     Serial.println("Nem sensörüne bağlanılamadı");
