@@ -1,5 +1,5 @@
 // aviyonik ve haberleşme testleri bu kod ile yapılacak
-#include <SoftwareSerial.h>
+//#include <SoftwareSerial.h>
 #include "Arduino.h"
 #include <Adafruit_Sensor.h>
 #include <Adafruit_BME280.h>
@@ -14,7 +14,6 @@ MPU6050 mpu;
 unsigned long delayTime;
 
 
-SoftwareSerial loraSerial(LORA_TX,LORA_RX);
 
  typedef union {
     float           sayi;
@@ -26,6 +25,8 @@ char paketSayaci = 0;
 float JiroskopX,JiroskopY,JiroskopZ; //geçici olarak yaptım değiştireceğim
 float basinc;
 
+//SoftwareSerial loraSerial(5,4);//hata verdiği için define ile tanımlanmış değişkenleri kaldırdım geri ekleyeceğim.
+
 void setup() {
   
   bool status;
@@ -33,7 +34,7 @@ void setup() {
   Serial.begin(9600);
   Wire.begin();
   mpu.initialize();
-  loraSerial.begin();
+  //loraSerial.begin(9600);
   status = bme.begin(0x76);  //nem sesnsörünün adresibe göre bu kısım değişebilir.
   if (!status) {
     Serial.println("Nem sensörüne bağlanılamadı");
@@ -55,9 +56,9 @@ void loop() {
   // Print data
   
   Serial.print("Gyroscope: ");
-  Serial.print("X = "); Serial.print(x);
-  Serial.print(" Y = "); Serial.print(y);
-  Serial.print(" Z = "); Serial.println(z);
+  Serial.print("X = "); Serial.print(JiroskopX);
+  Serial.print(" Y = "); Serial.print(JiroskopY);
+  Serial.print(" Z = "); Serial.println(JiroskopZ);
   Serial.print(" Basınç = "); Serial.println(basinc);
   //BASINÇ VE AÇI TETİKLENME KODU 
   //GEREKLİ DEĞERLER SAĞLANDIĞINDA LED YAK
@@ -120,19 +121,19 @@ void PaketGonder(float aciX,float aciY,float aciZ,float basinc,char tetiklenmeBa
 void LoraPaketGonder(float aciX,float aciY,float aciZ,float basinc,char tetiklenmeBasinc,char tetiklenmeAci,char paketSayac){
   int checksumDegeri;
   //pinleri lora serial olarak değiştir.
-  loraSerial.print(0x00);
-  loraSerial.print(0x3F);//adresleri dinamik yap
-  loraSerial.print(0x17);
+  //loraSerial.print(0x00);//burada hata var bunun çözümü baika bir kodda vardı.
+  //loraSerial.print(0x3F);//adresleri dinamik yap
+  //loraSerial.write(0x17); sketchy shit dont touch
   //Serial.print(0x7B);// başlangıç
   //Serial.print(0x2F); //ayırıcı
   //Serial.print(0x75);//identifier test paketine özel tanımlayıcı kod 0x75 !!
   //Serial.print(0x2F); //ayırıcı
   veriConverter.sayi=basinc;
-  loraSerial.print(veriConverter.array[0]);
-  loraSerial.print(veriConverter.array[1]);
-  loraSerial.print(veriConverter.array[2]);
-  loraSerial.print(veriConverter.array[3]);
-  loraSerial.print(0x2F); //ayırıcı
+  loraSerial.write(veriConverter.array[0]);
+  loraSerial.write(veriConverter.array[1]);
+  loraSerial.write(veriConverter.array[2]);
+  loraSerial.write(veriConverter.array[3]);
+  loraSerial.write(0x2F); //ayırıcı
   veriConverter.sayi=aciX;
   loraSerial.print(veriConverter.array[0]);
   loraSerial.print(veriConverter.array[1]);
